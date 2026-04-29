@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "书签搜索助手",
+  "short_name": "书签搜索",
+  "description": "快速搜索浏览器书签与历史记录，并提供本地剪贴板与常用片段管理。",
+  "version": "2.0.0",
+  "minimum_chrome_version": "102",
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_popup": "popup.html",
+    "default_title": "书签搜索助手"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "permissions": [
+    "bookmarks",
+    "tabs",
+    "history",
+    "storage"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

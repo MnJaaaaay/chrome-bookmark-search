@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>书签搜索</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>书签搜索</h1>
+    
+    <!-- 搜索类型选择 -->
+    <div class="search-type-selector">
+      <label><input type="radio" id="bookmark-radio" name="search-source" value="bookmarks" checked> 书签</label>
+      <label><input type="radio" id="history-radio" name="search-source" value="history"> 历史记录</label>
+      <label><input type="radio" id="clipboard-radio" name="search-source" value="clipboard"> 剪贴板</label>
+      <label><input type="radio" id="favorites-radio" name="search-source" value="favorites"> 常用</label>
+    </div>
+    
+    <!-- 搜索栏 -->
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="搜索书签或历史记录..." />
+    </div>
+
+    <!-- 剪贴板控制按钮 -->
+    <div id="clipboard-controls" class="clipboard-controls" style="display: none;">
+      <button id="clear-clipboard-btn" class="control-btn">清空历史</button>
+    </div>
+
+    <!-- 常用片段控制按钮 -->
+    <div id="favorites-controls" class="favorites-controls" style="display: none;">
+      <button id="add-favorite-btn" class="control-btn">+ 新建</button>
+    </div>
+    
+    <!-- 搜索结果区域 -->
+    <div class="results-container">
+      <div id="search-results" class="search-results"></div>
+    </div>
+
+    <!-- 编辑常用片段对话框 -->
+    <div id="edit-dialog" class="dialog-overlay" style="display: none;">
+      <div class="dialog-content">
+        <h3 id="dialog-title">新建常用片段</h3>
+        <div class="form-group">
+          <label for="favorite-title">标题：</label>
+          <input type="text" id="favorite-title" placeholder="输入标题（可选）" />
+        </div>
+        <div class="form-group">
+          <label for="favorite-content">内容：</label>
+          <textarea id="favorite-content" rows="6" placeholder="输入内容"></textarea>
+        </div>
+        <div class="dialog-buttons">
+          <button id="save-favorite-btn" class="btn-primary">保存</button>
+          <button id="cancel-favorite-btn" class="btn-secondary">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
