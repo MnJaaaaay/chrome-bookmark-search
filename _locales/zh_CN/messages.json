@@ -1,0 +1,18 @@
+{
+  "extName": {
+    "message": "书签搜索助手",
+    "description": "Extension name shown in chrome://extensions and the Web Store."
+  },
+  "extShortName": {
+    "message": "书签搜索",
+    "description": "Short name shown when full name does not fit."
+  },
+  "extDescription": {
+    "message": "在一个弹窗中搜索书签、浏览历史、剪贴板和常用片段。所有数据仅保存在本机。",
+    "description": "Extension description in the store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "书签搜索助手 — 点击打开",
+    "description": "Tooltip shown when hovering over the toolbar icon."
+  }
+}

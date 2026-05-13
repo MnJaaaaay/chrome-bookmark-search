@@ -1,3 +1,168 @@
+// ============================================================
+// i18n catalog and helpers
+// ============================================================
+
+const STRINGS = {
+  'zh-CN': {
+    appTitle: '书签搜索',
+    sourceBookmarks: '书签',
+    sourceHistory: '历史记录',
+    sourceClipboard: '剪贴板',
+    sourceFavorites: '常用',
+    searchPlaceholder: '搜索书签或历史记录...',
+    clearHistory: '清空历史',
+    addNew: '+ 新建',
+    save: '保存',
+    cancel: '取消',
+    copy: '复制',
+    edit: '编辑',
+    delete: '删除',
+    dialogNew: '新建常用片段',
+    dialogEdit: '编辑常用片段',
+    labelTitle: '标题：',
+    labelContent: '内容：',
+    placeholderTitle: '输入标题（可选）',
+    placeholderContent: '输入内容',
+    loadingData: '正在加载数据，请稍候...',
+    loadingHint: '数据加载中...请检查插件权限设置',
+    inputHint: '请输入关键词开始搜索',
+    searching: '搜索中...',
+    noResults: '未找到匹配的结果',
+    resultCount: (n) => `找到 ${n} 条结果`,
+    emptyClipboard: '暂无剪贴板历史<br>复制任何内容后会自动记录',
+    emptyFavorites: '暂无常用片段<br>点击"新建"按钮添加',
+    dataNotLoaded: (src) => `${src}数据未加载，请检查 Chrome 权限设置`,
+    typeFolder: '文件夹',
+    typeBookmark: '书签',
+    typeHistory: '历史',
+    typeClipboard: '剪贴板',
+    typeFavorite: '常用',
+    sourceNameBookmarks: '书签',
+    sourceNameHistory: '历史记录',
+    sourceNameClipboard: '剪贴板',
+    sourceNameFavorites: '常用片段',
+    unnamedFolder: '未命名文件夹',
+    unnamed: '未命名',
+    timeJustNow: '刚刚',
+    timeMinutesAgo: (n) => `${n} 分钟前`,
+    timeHoursAgo: (n) => `${n} 小时前`,
+    confirmClearClipboard: '确定要清空所有剪贴板历史吗？',
+    confirmDeleteFavorite: '确定要删除这个常用片段吗？',
+    alertEmptyContent: '请输入内容',
+    clipboardCleared: '剪贴板历史已清空',
+    searchError: '搜索出错，请重试',
+    langToggleLabel: 'EN',
+    langToggleTitle: 'Switch to English'
+  },
+  'en': {
+    appTitle: 'Quick Search',
+    sourceBookmarks: 'Bookmarks',
+    sourceHistory: 'History',
+    sourceClipboard: 'Clipboard',
+    sourceFavorites: 'Snippets',
+    searchPlaceholder: 'Search bookmarks or history...',
+    clearHistory: 'Clear',
+    addNew: '+ New',
+    save: 'Save',
+    cancel: 'Cancel',
+    copy: 'Copy',
+    edit: 'Edit',
+    delete: 'Delete',
+    dialogNew: 'New Snippet',
+    dialogEdit: 'Edit Snippet',
+    labelTitle: 'Title:',
+    labelContent: 'Content:',
+    placeholderTitle: 'Title (optional)',
+    placeholderContent: 'Content',
+    loadingData: 'Loading data, please wait...',
+    loadingHint: 'Loading... please check extension permissions',
+    inputHint: 'Type a keyword to search',
+    searching: 'Searching...',
+    noResults: 'No matching results',
+    resultCount: (n) => `${n} result${n === 1 ? '' : 's'} found`,
+    emptyClipboard: 'No clipboard history yet<br>Anything you copy will be auto-recorded',
+    emptyFavorites: 'No snippets yet<br>Click "+ New" to add one',
+    dataNotLoaded: (src) => `${src} data not loaded — check Chrome permissions`,
+    typeFolder: 'Folder',
+    typeBookmark: 'Bookmark',
+    typeHistory: 'History',
+    typeClipboard: 'Clipboard',
+    typeFavorite: 'Snippet',
+    sourceNameBookmarks: 'Bookmarks',
+    sourceNameHistory: 'History',
+    sourceNameClipboard: 'Clipboard',
+    sourceNameFavorites: 'Snippets',
+    unnamedFolder: 'Unnamed folder',
+    unnamed: 'Unnamed',
+    timeJustNow: 'just now',
+    timeMinutesAgo: (n) => `${n}m ago`,
+    timeHoursAgo: (n) => `${n}h ago`,
+    confirmClearClipboard: 'Clear all clipboard history?',
+    confirmDeleteFavorite: 'Delete this snippet?',
+    alertEmptyContent: 'Please enter content',
+    clipboardCleared: 'Clipboard history cleared',
+    searchError: 'Search error, please retry',
+    langToggleLabel: '中',
+    langToggleTitle: 'Switch to Chinese'
+  }
+};
+
+let currentLocale = 'zh-CN';
+
+function t(key, ...args) {
+  const dict = STRINGS[currentLocale] || STRINGS['zh-CN'];
+  const v = dict[key];
+  if (typeof v === 'function') return v(...args);
+  return v !== undefined ? v : key;
+}
+
+function detectInitialLocale() {
+  try {
+    const ui = (chrome.i18n && chrome.i18n.getUILanguage && chrome.i18n.getUILanguage()) || '';
+    if (ui.toLowerCase().startsWith('zh')) return 'zh-CN';
+    return 'en';
+  } catch (_) {
+    return 'zh-CN';
+  }
+}
+
+function applyTranslations() {
+  document.documentElement.lang = currentLocale;
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.setAttribute('placeholder', t(key));
+  });
+
+  const langBtn = document.getElementById('lang-toggle');
+  if (langBtn) {
+    langBtn.textContent = t('langToggleLabel');
+    langBtn.title = t('langToggleTitle');
+  }
+}
+
+function setLocale(locale, persist = true) {
+  currentLocale = STRINGS[locale] ? locale : 'zh-CN';
+  applyTranslations();
+  if (persist && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.set({ uiLocale: currentLocale });
+  }
+  // Re-render search results because dynamic labels (type tags, time strings) depend on locale.
+  handleSearch();
+}
+
+function toggleLocale() {
+  setLocale(currentLocale === 'zh-CN' ? 'en' : 'zh-CN');
+}
+
+// ============================================================
+// Application state
+// ============================================================
+
 let bookmarks = [];
 let historyItems = [];
 let clipboardHistory = [];
@@ -8,6 +173,7 @@ let editingFavoriteId = null;
 let searchInput, resultsContainer, bookmarkRadio, historyRadio, clipboardRadio, favoritesRadio;
 let clipboardControls, clearBtn, favoritesControls, addFavoriteBtn;
 let editDialog, dialogTitle, favoriteTitle, favoriteContent, saveFavoriteBtn, cancelFavoriteBtn;
+let langToggleBtn;
 
 document.addEventListener('DOMContentLoaded', function () {
   searchInput = document.getElementById('search-input');
@@ -26,10 +192,26 @@ document.addEventListener('DOMContentLoaded', function () {
   favoriteContent = document.getElementById('favorite-content');
   saveFavoriteBtn = document.getElementById('save-favorite-btn');
   cancelFavoriteBtn = document.getElementById('cancel-favorite-btn');
+  langToggleBtn = document.getElementById('lang-toggle');
 
   if (bookmarkRadio) bookmarkRadio.checked = true;
-  if (resultsContainer) {
-    resultsContainer.innerHTML = '<div class="no-results">正在加载数据，请稍候...</div>';
+
+  // Resolve locale before painting any initial text.
+  const fallback = detectInitialLocale();
+  if (chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(['uiLocale'], (result) => {
+      currentLocale = STRINGS[result.uiLocale] ? result.uiLocale : fallback;
+      applyTranslations();
+      if (resultsContainer) {
+        resultsContainer.innerHTML = `<div class="no-results">${t('loadingData')}</div>`;
+      }
+    });
+  } else {
+    currentLocale = fallback;
+    applyTranslations();
+    if (resultsContainer) {
+      resultsContainer.innerHTML = `<div class="no-results">${t('loadingData')}</div>`;
+    }
   }
 
   initEventListeners();
@@ -67,6 +249,7 @@ function initEventListeners() {
   if (addFavoriteBtn) addFavoriteBtn.addEventListener('click', openAddFavoriteDialog);
   if (saveFavoriteBtn) saveFavoriteBtn.addEventListener('click', saveFavorite);
   if (cancelFavoriteBtn) cancelFavoriteBtn.addEventListener('click', closeEditDialog);
+  if (langToggleBtn) langToggleBtn.addEventListener('click', toggleLocale);
 
   if (editDialog) {
     editDialog.addEventListener('click', function (e) {
@@ -83,7 +266,7 @@ function loadAllData() {
 
   setTimeout(function () {
     if (resultsContainer && bookmarks.length === 0 && historyItems.length === 0) {
-      resultsContainer.innerHTML = '<div class="no-results">数据加载中...请检查插件权限设置</div>';
+      resultsContainer.innerHTML = `<div class="no-results">${t('loadingHint')}</div>`;
     }
   }, 3000);
 }
@@ -96,11 +279,11 @@ function loadClipboardHistory() {
 }
 
 function clearClipboardHistory() {
-  if (!confirm('确定要清空所有剪贴板历史吗？')) return;
+  if (!confirm(t('confirmClearClipboard'))) return;
   clipboardHistory = [];
   chrome.storage.local.set({ clipboardHistory });
   if (resultsContainer) {
-    resultsContainer.innerHTML = '<div class="no-results">剪贴板历史已清空</div>';
+    resultsContainer.innerHTML = `<div class="no-results">${t('clipboardCleared')}</div>`;
   }
 }
 
@@ -120,9 +303,9 @@ async function copyToClipboard(text) {
 function formatTimestamp(timestamp) {
   const date = new Date(timestamp);
   const diff = Date.now() - date.getTime();
-  if (diff < 60000) return '刚刚';
-  if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
-  if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+  if (diff < 60000) return t('timeJustNow');
+  if (diff < 3600000) return t('timeMinutesAgo', Math.floor(diff / 60000));
+  if (diff < 86400000) return t('timeHoursAgo', Math.floor(diff / 3600000));
   return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 }
 
@@ -143,7 +326,7 @@ function processBookmarkTree(bookmarkNodes) {
     if (node.children && node.children.length > 0) {
       bookmarks.push({
         id: node.id,
-        title: node.title || '未命名文件夹',
+        title: node.title || '',  // translate at render time when empty
         type: 'folder',
         url: null
       });
@@ -169,7 +352,7 @@ function loadHistorySimple() {
 
 function updateStatus() {
   if (resultsContainer && (bookmarks.length > 0 || historyItems.length > 0)) {
-    resultsContainer.innerHTML = '<div class="no-results">请输入关键词开始搜索</div>';
+    resultsContainer.innerHTML = `<div class="no-results">${t('inputHint')}</div>`;
   }
 }
 
@@ -181,14 +364,14 @@ function handleSearch() {
 
   if (!isLoading && resultsContainer) {
     isLoading = true;
-    resultsContainer.innerHTML = '<div class="loading">搜索中...</div>';
+    resultsContainer.innerHTML = `<div class="loading">${t('searching')}</div>`;
   }
 
   setTimeout(() => {
     try {
       if (!searchText && !isClipboardSearch && !isFavoritesSearch) {
         if (resultsContainer) {
-          resultsContainer.innerHTML = '<div class="no-results">请输入关键词开始搜索</div>';
+          resultsContainer.innerHTML = `<div class="no-results">${t('inputHint')}</div>`;
         }
         isLoading = false;
         return;
@@ -208,7 +391,7 @@ function handleSearch() {
       renderResults(results, isBookmarkSearch, isClipboardSearch, isFavoritesSearch);
     } catch (_) {
       if (resultsContainer) {
-        resultsContainer.innerHTML = '<div class="no-results">搜索出错，请重试</div>';
+        resultsContainer.innerHTML = `<div class="no-results">${t('searchError')}</div>`;
       }
     } finally {
       isLoading = false;
@@ -245,23 +428,23 @@ function renderResults(results, isBookmarkSearch, isClipboardSearch, isFavorites
       (isClipboardSearch && clipboardHistory.length === 0) ||
       (isFavoritesSearch && favoriteSnippets.length === 0) ||
       (!isBookmarkSearch && !isClipboardSearch && !isFavoritesSearch && historyItems.length === 0)) {
-    let sourceType = '历史记录';
-    if (isBookmarkSearch) sourceType = '书签';
-    if (isClipboardSearch) sourceType = '剪贴板';
-    if (isFavoritesSearch) sourceType = '常用片段';
+    let sourceName = t('sourceNameHistory');
+    if (isBookmarkSearch) sourceName = t('sourceNameBookmarks');
+    if (isClipboardSearch) sourceName = t('sourceNameClipboard');
+    if (isFavoritesSearch) sourceName = t('sourceNameFavorites');
 
     if (isClipboardSearch) {
-      resultsContainer.innerHTML = '<div class="no-results">暂无剪贴板历史<br>复制任何内容后会自动记录</div>';
+      resultsContainer.innerHTML = `<div class="no-results">${t('emptyClipboard')}</div>`;
     } else if (isFavoritesSearch) {
-      resultsContainer.innerHTML = '<div class="no-results">暂无常用片段<br>点击"新建"按钮添加</div>';
+      resultsContainer.innerHTML = `<div class="no-results">${t('emptyFavorites')}</div>`;
     } else {
-      resultsContainer.innerHTML = `<div class="no-results">${sourceType}数据未加载，请检查Chrome权限设置</div>`;
+      resultsContainer.innerHTML = `<div class="no-results">${t('dataNotLoaded', sourceName)}</div>`;
     }
     return;
   }
 
   if (!results || results.length === 0) {
-    resultsContainer.innerHTML = '<div class="no-results">未找到匹配的结果</div>';
+    resultsContainer.innerHTML = `<div class="no-results">${t('noResults')}</div>`;
     return;
   }
 
@@ -270,7 +453,7 @@ function renderResults(results, isBookmarkSearch, isClipboardSearch, isFavorites
 
   const countDiv = document.createElement('div');
   countDiv.className = 'result-count';
-  countDiv.textContent = `找到 ${results.length} 条结果`;
+  countDiv.textContent = t('resultCount', results.length);
   container.appendChild(countDiv);
 
   const displayResults = results.slice(0, 50);
@@ -301,9 +484,11 @@ function createResultItem(item, isBookmarkSearch, isClipboardSearch, isFavorites
 
   const typeSpan = document.createElement('span');
   typeSpan.className = 'result-type';
-  if (isClipboardSearch) typeSpan.textContent = '剪贴板';
-  else if (isFavoritesSearch) typeSpan.textContent = '常用';
-  else typeSpan.textContent = item.type === 'folder' ? '文件夹' : (isBookmarkSearch ? '书签' : '历史');
+  if (isClipboardSearch) typeSpan.textContent = t('typeClipboard');
+  else if (isFavoritesSearch) typeSpan.textContent = t('typeFavorite');
+  else typeSpan.textContent = item.type === 'folder'
+    ? t('typeFolder')
+    : (isBookmarkSearch ? t('typeBookmark') : t('typeHistory'));
 
   if (isClipboardSearch) {
     titleDiv.textContent = item.preview || item.text.substring(0, 50);
@@ -315,7 +500,7 @@ function createResultItem(item, isBookmarkSearch, isClipboardSearch, isFavorites
 
     const copyBtn = document.createElement('button');
     copyBtn.className = 'copy-btn';
-    copyBtn.textContent = '复制';
+    copyBtn.textContent = t('copy');
     copyBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       copyToClipboard(item.text);
@@ -339,7 +524,7 @@ function createResultItem(item, isBookmarkSearch, isClipboardSearch, isFavorites
 
     const copyBtn = document.createElement('button');
     copyBtn.className = 'action-btn';
-    copyBtn.textContent = '复制';
+    copyBtn.textContent = t('copy');
     copyBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       copyToClipboard(item.content);
@@ -347,7 +532,7 @@ function createResultItem(item, isBookmarkSearch, isClipboardSearch, isFavorites
 
     const editBtn = document.createElement('button');
     editBtn.className = 'action-btn';
-    editBtn.textContent = '编辑';
+    editBtn.textContent = t('edit');
     editBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       openEditFavoriteDialog(item.id);
@@ -355,7 +540,7 @@ function createResultItem(item, isBookmarkSearch, isClipboardSearch, isFavorites
 
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'action-btn delete';
-    deleteBtn.textContent = '删除';
+    deleteBtn.textContent = t('delete');
     deleteBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       deleteFavorite(item.id);
@@ -370,7 +555,10 @@ function createResultItem(item, isBookmarkSearch, isClipboardSearch, isFavorites
     itemDiv.appendChild(actionsDiv);
     itemDiv.appendChild(typeSpan);
   } else {
-    titleDiv.textContent = item.title || getDomainName(item.url) || '未命名';
+    const displayTitle = item.type === 'folder'
+      ? (item.title || t('unnamedFolder'))
+      : (item.title || getDomainName(item.url) || t('unnamed'));
+    titleDiv.textContent = displayTitle;
     contentDiv.appendChild(titleDiv);
 
     if (item.url) {
@@ -434,7 +622,7 @@ function loadFavoriteSnippets() {
 
 function openAddFavoriteDialog() {
   editingFavoriteId = null;
-  dialogTitle.textContent = '新建常用片段';
+  dialogTitle.textContent = t('dialogNew');
   favoriteTitle.value = '';
   favoriteContent.value = '';
   editDialog.style.display = 'flex';
@@ -445,7 +633,7 @@ function openEditFavoriteDialog(id) {
   const snippet = favoriteSnippets.find(s => s.id === id);
   if (!snippet) return;
   editingFavoriteId = id;
-  dialogTitle.textContent = '编辑常用片段';
+  dialogTitle.textContent = t('dialogEdit');
   favoriteTitle.value = snippet.title || '';
   favoriteContent.value = snippet.content || '';
   editDialog.style.display = 'flex';
@@ -463,7 +651,7 @@ function saveFavorite() {
   const title = favoriteTitle.value.trim();
   const content = favoriteContent.value.trim();
   if (!content) {
-    alert('请输入内容');
+    alert(t('alertEmptyContent'));
     return;
   }
 
@@ -493,7 +681,7 @@ function saveFavorite() {
 }
 
 function deleteFavorite(id) {
-  if (!confirm('确定要删除这个常用片段吗？')) return;
+  if (!confirm(t('confirmDeleteFavorite'))) return;
   favoriteSnippets = favoriteSnippets.filter(s => s.id !== id);
   chrome.storage.local.set({ favoriteSnippets }, handleSearch);
 }

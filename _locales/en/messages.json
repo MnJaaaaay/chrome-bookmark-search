@@ -1,0 +1,18 @@
+{
+  "extName": {
+    "message": "Bookmark Search Helper",
+    "description": "Extension name shown in chrome://extensions and the Web Store."
+  },
+  "extShortName": {
+    "message": "Bookmark Search",
+    "description": "Short name shown when full name does not fit."
+  },
+  "extDescription": {
+    "message": "Unified popup to search bookmarks, history, clipboard, and your own snippets. 100% local, zero network requests.",
+    "description": "Extension description in the store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "Bookmark Search Helper — click to open",
+    "description": "Tooltip shown when hovering over the toolbar icon."
+  }
+}
